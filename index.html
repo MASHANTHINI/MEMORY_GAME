@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game</title>
+    <link rel="stylesheet" href="2.css">
+</head>
+<body>
+    <div class="container">
+        <h2>MEMORY GAME</h2>
+        <div class="game"></div>
+        <button class="reset" onclick="resetGame()">Reset Game</button>
+    </div>
+    <div id="win-message">
+        <h1>You Win!</h1>
+        <div id="confetti-container"></div>
+    </div>
+    <script>
+    const emojis = [
+    "ron.png", "ron.png",
+    "harry.png", "harry.png",
+    "dumbell.png", "dumbell.png",
+    "hackrid.png", "hackrid.png",
+    "hermoine.png", "hermoine.png",
+    "voltamote.png", "voltamote.png",
+    "drago.png", "drago.png",
+    "dobby.png", "dobby.png"
+];
+
+let shuffledEmojis = [];
+let openedCards = [];
+let matchedPairs = 0;
+
+function initGame() {
+    shuffledEmojis = emojis.sort(() => Math.random() - 0.5);
+    const gameContainer = document.querySelector('.game');
+    gameContainer.innerHTML = ''; 
+    document.getElementById("win-message").style.display = "none"; 
+    stopConfetti(); 
+
+    shuffledEmojis.forEach((emoji, index) => {
+        const box = document.createElement('div');
+        box.classList.add('item');
+        const img = document.createElement('img');
+        img.src = emoji;
+        img.alt = `Card ${index}`;
+        box.appendChild(img);
+
+        box.addEventListener('click', () => handleCardClick(box));
+        gameContainer.appendChild(box);
+    });
+}
+
+function handleCardClick(card) {
+    if (openedCards.length === 2 || card.classList.contains('boxopen') || card.classList.contains('boxmatch')) {
+        return;
+    }
+
+    card.classList.add('boxopen');
+    openedCards.push(card);
+
+    if (openedCards.length === 2) {
+        checkMatch();
+    }
+}
+
+
+function checkMatch() {
+    const [firstCard, secondCard] = openedCards;
+    const firstEmoji = firstCard.querySelector('img').src;
+    const secondEmoji = secondCard.querySelector('img').src;
+
+    if (firstEmoji === secondEmoji) {
+        firstCard.classList.add('boxmatch');
+        secondCard.classList.add('boxmatch');
+        matchedPairs++;
+
+        if (matchedPairs === emojis.length / 2) {
+            setTimeout(() => {
+                document.getElementById("win-message").style.display = "flex";
+                startConfetti();
+            }, 500);
+        }
+    } else {
+        setTimeout(() => {
+            firstCard.classList.remove('boxopen');
+            secondCard.classList.remove('boxopen');
+        }, 1000);
+    }
+
+    openedCards = [];
+}
+
+
+function resetGame() {
+    matchedPairs = 0;
+    openedCards = [];
+    document.getElementById("win-message").style.display = "none"; 
+    stopConfetti(); 
+    initGame(); 
+}
+
+
+
+function startConfetti() {
+    const confettiContainer = document.getElementById("confetti-container");
+    confettiContainer.innerHTML = ''; 
+    for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.animationDelay = Math.random() * 2 + 's';
+        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        confettiContainer.appendChild(confetti);
+    }
+   
+}
+function stopConfetti() {
+    const confettiContainer = document.getElementById("confetti-container");
+    confettiContainer.innerHTML = ''; 
+}
+
+initGame();
+</script>
+</body>
+</body>
+</html>
